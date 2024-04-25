@@ -78,7 +78,7 @@ Bound addresses will then be logged to the terminal:
 
 This is not required.
 
-1. Uncomment the SSL settings from [resources/sample/helloworld-settings.yml](src/main/resources/sample/helloworld-settings.yml):
+1. Uncomment the SSL settings from [resources/sample/helloworld-settings.yml](core/main/resources/sample/helloworld-settings.yml):
 ```
 ssl.transport.enabled: true
 ssl.transport.pemcert_filepath: certs/extension-01.pem
@@ -148,7 +148,7 @@ You can run OpenSearch either from a compiled binary or from source code.
 If you closed OpenSearch as above, use `gradle` to run it.
 
 - Run `./gradlew run` to start OpenSearch.
-- Send the below sample REST API to initialize an extension using settings in [hello.json](src/main/java/org/opensearch/sdk/sample/helloworld/hello.json).
+- Send the below sample REST API to initialize an extension using settings in [hello.json](core/main/java/org/opensearch/sdk/sample/helloworld/hello.json).
 
 ```bash
 curl -XPOST "localhost:9200/_extensions/initialize" -H "Content-Type:application/json" --data @src/main/java/org/opensearch/sdk/sample/helloworld/hello.json

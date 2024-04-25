@@ -1,1 +1,5 @@
-rootProject.name = 'opensearch-sdk-java'
+include "core"
+include "api"
+
+project(":core").name = "opensearch-sdk-java"
+project(":api").name = "opensearch-sdk-java-api"

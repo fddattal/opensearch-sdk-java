@@ -1,0 +1,161 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The OpenSearch Contributors require contributions made to
+ * this file be licensed under the Apache-2.0 license or a
+ * compatible open source license.
+ *
+ * Modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
+ */
+
+import java.nio.file.Files
+
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    id "com.diffplug.spotless" version "6.22.0" apply false
+    id 'jacoco'
+    id "com.form.diff-coverage" version "0.9.5"
+    // for javadocs and checks spotless doesn't do
+    id 'checkstyle'
+    id "io.freefair.lombok" version "8.6"
+}
+
+
+apply from: '../gradle/formatting.gradle'
+
+ext {
+    projectSubstitutions = [:]
+    licenseFile = rootProject.file('LICENSE')
+    noticeFile = rootProject.file('NOTICE')
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+}
+
+version = "0.0.1"
+group 'org.opensearch.sdk'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+
+        all {
+            pom {
+                name = "opensearch-sdk-java-api"
+            }
+
+            pom.withXml { XmlProvider xml ->
+                Node node = xml.asNode()
+                node.appendNode('description', 'OpenSearch Java SDK Client API')
+
+                Node license = node.appendNode('licenses').appendNode('license')
+                license.appendNode('name', project.licenseName)
+                license.appendNode('url', project.licenseUrl)
+
+                Node developer = node.appendNode('developers').appendNode('developer')
+                developer.appendNode('name', 'OpenSearch')
+                developer.appendNode('url', 'https://github.com/opensearch-project/opensearch-sdk-java')
+            }
+        }
+    }
+
+    repositories {
+        if (version.toString().endsWith("SNAPSHOT")) {
+            maven {
+                name = "Snapshots" //  optional target repository name
+                url = "https://aws.oss.sonatype.org/content/repositories/snapshots"
+                credentials {
+                    username "$System.env.SONATYPE_USERNAME"
+                    password "$System.env.SONATYPE_PASSWORD"
+                }
+            }
+        }
+        maven {
+            name = "localRepo"
+            url = "$buildDir/localRepo"
+        }
+    }
+}
+
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = sourceSets.main.compileClasspath
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
+    maven { url "https://ci.opensearch.org/ci/dbc/snapshots/lucene/"}
+}
+
+dependencies {
+}
+
+task getVersion() {
+    doLast {
+        println("version=${version}")
+    }
+}
+
+test {
+    useJUnitPlatform()
+    jvmArgs '--enable-preview'
+    systemProperty 'tests.security.manager', 'false'
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+    jacoco {
+        classDumpDir = file("$buildDir/jacoco/classpathdumps")
+    }
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+    }
+}
+
+// Get uncommitted files via git diff
+// https://github.com/form-com/diff-coverage-gradle/issues/73
+ext.createDiffFile = { ->
+    def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
+    def diffBase = 'refs/remotes/origin/main'
+    // Only run locally
+    if (!System.getenv('CI')) {
+        file.withOutputStream { out ->
+            exec {
+                commandLine 'git', 'diff', '--no-color', '--minimal', diffBase
+                standardOutput = out
+            }
+        }
+    }
+    return file
+}
+
+diffCoverageReport {
+    afterEvaluate {
+        diffSource.file = createDiffFile()
+    }
+
+    // View report at build/reports/jacoco/diffCoverage/html/index.html
+    reports {
+        html = true
+    }
+
+    violationRules {
+        minBranches = 0.60
+        minLines = 0.75
+        failOnViolation = true
+    }
+}
+
+
+

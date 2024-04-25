@@ -26,6 +26,11 @@ plugins {
 
 apply from: '../gradle/formatting.gradle'
 
+java {
+    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_11
+}
+
 ext {
     projectSubstitutions = [:]
     licenseFile = rootProject.file('LICENSE')

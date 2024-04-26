@@ -7,4 +7,5 @@ import lombok.Data;
 @Builder(toBuilder = true)
 public class ResolveIndicesAndAliasesRequest {
     private IndexExpressions indexExpressions;
+    private IndicesOptions indicesOptions;
 }

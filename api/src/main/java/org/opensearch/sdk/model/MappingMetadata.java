@@ -5,6 +5,5 @@ import lombok.Data;
 
 @Data
 @Builder(toBuilder = true)
-public class GetIndexMappingsResponse {
-    private MappingMetadata mappingMetadata;
+public class MappingMetadata {
 }

@@ -4,6 +4,5 @@ import lombok.Builder;
 
 @lombok.Data
 @Builder(toBuilder = true)
-public class MappingMetadata {
-    private Data source;
+public class MatchAllQuery implements Query {
 }

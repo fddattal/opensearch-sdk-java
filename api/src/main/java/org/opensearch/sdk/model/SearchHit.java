@@ -4,7 +4,9 @@ import lombok.Builder;
 
 @lombok.Data
 @Builder(toBuilder = true)
-public class GetIndexSettingRequest {
+public class SearchHit {
     private IndexName indexName;
-    private SettingKey settingKey;
+    private DocumentId documentId;
+    private Score score;
+    private Source source;
 }

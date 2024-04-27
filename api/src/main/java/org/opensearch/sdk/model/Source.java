@@ -4,6 +4,6 @@ import lombok.Builder;
 
 @lombok.Data
 @Builder(toBuilder = true)
-public class MappingMetadata {
-    private Data source;
+public class Source {
+    private Data value;
 }

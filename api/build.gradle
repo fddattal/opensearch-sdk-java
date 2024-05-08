@@ -11,6 +11,23 @@
 
 import java.nio.file.Files
 
+buildscript {
+    ext {
+        opensearch_version = System.getProperty("opensearch.version", "3.0.0")
+        isSnapshot = "true" == System.getProperty("build.snapshot", "true")
+        if (isSnapshot) {
+            opensearch_version += "-SNAPSHOT"
+        }
+        buildVersionQualifier = System.getProperty("build.version_qualifier", "")
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
+    }
+}
+
 plugins {
     id 'java'
     id 'java-library'
@@ -99,6 +116,7 @@ repositories {
 }
 
 dependencies {
+    api("org.opensearch:opensearch:${opensearch_version}")
 }
 
 task getVersion() {

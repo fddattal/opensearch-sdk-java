@@ -1,21 +1,21 @@
 package org.opensearch.sdk.factory;
 
 import org.opensearch.sdk.service.Client;
+import org.opensearch.sdk.service.TenantProvider;
 
 import java.util.ServiceLoader;
 
-public class Factory {
+public interface Factory {
 
-    public static Client newClient(org.opensearch.client.Client coreClient) {
-        return construct(Client.class, coreClient);
-    }
+    Client newClient(org.opensearch.client.Client coreClient);
 
-    private static <T> T construct(Class<T> clazz, Object... arguments) {
+    TenantProvider newTenantProvider();
 
-        ObjectFactory objectFactory = ServiceLoader.load(ObjectFactory.class)
+    public static Factory load(ClassLoader classLoader) {
+        return ServiceLoader.load(Factory.class, classLoader)
                 .findFirst()
-                .orElseThrow();
-
-        return objectFactory.construct(clazz, arguments);
+                .orElseThrow(() -> {
+                    return new IllegalStateException("Failed to load Factory SPI instance!");
+                });
     }
 }

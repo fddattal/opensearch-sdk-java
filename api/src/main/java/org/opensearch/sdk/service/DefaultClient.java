@@ -12,12 +12,8 @@ public class DefaultClient implements Client {
 
     private final org.opensearch.client.Client client;
 
-    private DefaultClient(org.opensearch.client.Client client) {
+    public DefaultClient(org.opensearch.client.Client client) {
         this.client = client;
-    }
-
-    public static DefaultClient construct(Object[] args) {
-        return new DefaultClient((org.opensearch.client.Client) args[0]);
     }
 
     @Override
